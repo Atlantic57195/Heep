@@ -1,7 +1,7 @@
 import React from 'react';
 import UrlInput from './UrlInput';
-import logoLight from '../assets/logo-light.png';
-import logoDark from '../assets/logo-dark.png';
+import logoLight from '../assets/yt-logo-light.png';
+import logoDark from '../assets/yt-logo-dark.png';
 
 const SearchSection = ({ theme, hasVideos, isSingleVideo, onAnalyze, isLoading }) => {
     return (
@@ -18,7 +18,6 @@ const SearchSection = ({ theme, hasVideos, isSingleVideo, onAnalyze, isLoading }
                     alt="YouTube Logo"
                 />
             </div>
-
             <UrlInput onAnalyze={onAnalyze} isLoading={isLoading} />
         </div>
     );
