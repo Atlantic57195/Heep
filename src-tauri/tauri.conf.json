@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Heep",
+  "productName": "Heep.",
   "version": "0.1.0",
   "identifier": "com.heep.app",
   "build": {

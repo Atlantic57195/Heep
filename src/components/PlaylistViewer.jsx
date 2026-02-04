@@ -14,19 +14,16 @@ const PlaylistViewer = ({
     isDownloading,
     isPaused,
     isChecking,
-    status,
     activeDownloads = {},
     completedVideoIds = new Set(),
     totalToDownload = 0,
     onClearCompleted,
     onClearStatus,
-    lastOutcome
+    lastOutcome,
+    onSelectDownloadDir,
+    downloadDir
 }) => {
     const selectedCount = selectedIds.size;
-
-
-
-
     const videoSectionRef = React.useRef(null);
     const scrollbarSectionRef = React.useRef(null);
     const contentRef = React.useRef(null);
@@ -34,18 +31,21 @@ const PlaylistViewer = ({
     const isScrolling = React.useRef(false);
 
     const handleSelectAll = () => {
+        if (isDownloading || isPaused) return;
         onClearStatus?.();
         if (onClearCompleted) onClearCompleted();
         selectAll();
     };
 
     const handleUnselectAll = () => {
+        if (isDownloading || isPaused) return;
         onClearStatus?.();
         if (onClearCompleted) onClearCompleted();
         unselectAll();
     };
 
     const handleFormatToggle = () => {
+        if (isDownloading || isPaused) return;
         onClearStatus?.();
         if (onClearCompleted) onClearCompleted();
         setFormat(prev => prev === 'mp3' ? 'mp4' : 'mp3');
@@ -56,23 +56,16 @@ const PlaylistViewer = ({
         const updateScrollHeight = () => {
             if (contentRef.current && scrollbarContentRef.current && videoSectionRef.current && scrollbarSectionRef.current) {
                 const contentHeight = contentRef.current.scrollHeight;
-                // Set scrollbar content height to match the scrollable content
                 scrollbarContentRef.current.style.height = `${contentHeight}px`;
-
-                // Also sync initial scroll position
                 if (videoSectionRef.current.scrollTop !== scrollbarSectionRef.current.scrollTop) {
                     scrollbarSectionRef.current.scrollTop = videoSectionRef.current.scrollTop;
                 }
             }
         };
 
-        // Initial update
         const timeout1 = setTimeout(updateScrollHeight, 0);
-
-        // Update after content renders
         const timeout2 = setTimeout(updateScrollHeight, 100);
 
-        // Use ResizeObserver to track content size changes
         let resizeObserver = null;
         if (contentRef.current && 'ResizeObserver' in window) {
             resizeObserver = new ResizeObserver(() => {
@@ -80,8 +73,6 @@ const PlaylistViewer = ({
             });
             resizeObserver.observe(contentRef.current);
         }
-
-        // Update on window resize
         window.addEventListener('resize', updateScrollHeight);
 
         return () => {
@@ -111,102 +102,125 @@ const PlaylistViewer = ({
     };
 
     if (!videos || videos.length === 0) return null;
-
     if (videos.length === 1) {
         const video = videos[0];
         return (
-            <div className="single-video-container">
-                <div className="single-video-card">
-                    {/* Thumbnail */}
-                    {video.thumbnail && <img src={video.thumbnail} alt="" className="single-video-thumb-large" />}
+            <div className="playlist-layout-wrapper">
+                <div className="playlist-header-container">
+                    <div className="header-left">
+                        {/* Placeholder or back button if needed, but keeping empty for now to match request for just 'like playlist header' logic sans select */}
+                    </div>
 
-                    {/* Details */}
-                    {/* Content Wrapper */}
-                    <div className="single-video-content">
-                        <div className="single-video-details">
-                            <span className="single-video-title-large">{video.title}</span>
-                            <span className="single-video-duration-large">
-                                {video.duration ? `${Math.floor(video.duration / 60)}:${(video.duration % 60).toString().padStart(2, '0')}` : ''}
+                    <div className="header-center">
+                        {lastOutcome === 'complete' ? (
+                            <div><b>Download Complete</b></div>
+                        ) : lastOutcome === 'paused' || isPaused ? (
+                            <div><b>Download Paused</b></div>
+                        ) : lastOutcome === 'canceled' ? (
+                            <div><b>Download Canceled</b></div>
+                        ) : (isDownloading || isChecking) ? (
+                            <div><b>Downloading...</b></div>
+                        ) : (
+                            <>
+                                <div><b>Video Found</b></div>
+                            </>
+                        )}
+                    </div>
+
+                    <div className="header-right">
+                        <div className={`format-toggle ${isDownloading || isPaused ? 'disabled' : ''}`} onClick={handleFormatToggle}>
+                            <div className={`toggle-pill ${format === 'mp3' ? 'left' : 'right'}`}>
+                                <span className={`pill-text ${format === 'mp3' ? 'active' : ''}`}>Audio</span>
+                                <span className={`pill-text ${format === 'mp4' ? 'active' : ''}`}>Video</span>
+                            </div>
+                            <span className={`toggle-text ${format === 'mp3' ? 'active' : ''}`}>
+                                Audio
+                            </span>
+                            <span className={`toggle-text ${format === 'mp4' ? 'active' : ''}`}>
+                                Video
                             </span>
                         </div>
 
-                        {/* Actions */}
-                        <div className="single-video-actions">
-                            <div className="format-toggle" onClick={handleFormatToggle}>
-                                <div className={`toggle-pill ${format === 'mp3' ? 'left' : 'right'}`}>
-                                    <span className={`pill-text ${format === 'mp3' ? 'active' : ''}`}>Audio</span>
-                                    <span className={`pill-text ${format === 'mp4' ? 'active' : ''}`}>Video</span>
-                                </div>
-                                <span className={`toggle-text ${format === 'mp3' ? 'active' : ''}`}>
-                                    Audio
-                                </span>
-                                <span className={`toggle-text ${format === 'mp4' ? 'active' : ''}`}>
-                                    Video
-                                </span>
-                            </div>
+                        <button
+                            className={`folder-btn ${isDownloading || isPaused ? 'disabled' : ''}`}
+                            onClick={() => !(isDownloading || isPaused) && onSelectDownloadDir()}
+                            title={downloadDir ? `Current Folder: ${downloadDir}` : "Current Folder: n/a"}
+                        >
+                            <svg className="folder-icon closed-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                            </svg>
+                            <svg className="folder-icon open-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="m6 14 1.45-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.55 6a2 2 0 0 1-1.94 1.5H4a2 2 0 0 1-2-2V5c0-1.1.9-2 2-2h3.93a2 2 0 0 1 1.66.9l.82 1.2a2 2 0 0 0 1.66.9H18a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                        </button>
 
-                            {isDownloading || isPaused ? (
-                                <div className="split-btn-group">
-                                    <button
-                                        className={`icon-btn ${isPaused ? 'resume-btn' : 'pause-btn'}`}
-                                        onClick={isPaused ? () => { onClearStatus?.(); onDownload(true); } : onPause}
-                                        title={isPaused ? "Resume Download" : "Pause Download"}
-                                    >
-                                        {isPaused ? (
-                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                                            </svg>
-                                        ) : (
-                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                <rect x="6" y="4" width="4" height="16"></rect>
-                                                <rect x="14" y="4" width="4" height="16"></rect>
-                                            </svg>
-                                        )}
-                                    </button>
-                                    <button
-                                        className="icon-btn cancel-btn"
-                                        onClick={onCancel}
-                                        title="Cancel Download"
-                                    >
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                                        </svg>
-                                    </button>
-                                </div>
-                            ) : (
+                        {isDownloading || isPaused ? (
+                            <div className="split-btn-group">
                                 <button
-                                    className="download-pill-btn"
-                                    onClick={() => { onClearStatus?.(); onDownload(); }}
+                                    className="icon-btn cancel-btn"
+                                    onClick={onCancel}
+                                    title="Cancel Download"
+                                    style={{ width: '100%' }}
                                 >
-                                    Download
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                                    </svg>
                                 </button>
-                            )}
+                            </div>
+                        ) : (
+                            <button
+                                className="download-pill-btn"
+                                onClick={() => { onClearStatus?.(); onDownload(); }}
+                            >
+                                Download
+                            </button>
+                        )}
+                    </div>
+                </div>
+
+                <div className="single-video-container">
+                    <div className="single-video-card">
+                        {/* Thumbnail */}
+                        {video.thumbnail && <img src={video.thumbnail} alt="" className="single-video-thumb-large" />}
+
+                        {/* Details */}
+                        <div className="single-video-content">
+                            <div className="single-video-details">
+                                <span className="single-video-title-large">{video.title}</span>
+                                <span className="single-video-duration-large">
+                                    {video.duration ? `${Math.floor(video.duration / 60)}:${(video.duration % 60).toString().padStart(2, '0')}` : ''}
+                                </span>
+
+                                {/* Progress Bar for Single Video */}
+                                {activeDownloads[video.id] && (
+                                    <div className="single-video-progress-container">
+                                        <div className="single-video-progress-bar"></div>
+                                    </div>
+                                )}
+
+                                {/* Download Complete Indicator */}
+                                {(lastOutcome === 'complete' || completedVideoIds.has(video.id)) && (
+                                    <div className="single-video-complete-container">
+                                        <div className="single-video-complete-bar">
+                                            <svg className="download-complete-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                                                <polyline points="20 6 9 17 4 12"></polyline>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
-
-                    {/* Progress Bar for Single Video */}
-                    {activeDownloads[video.id] && (
-                        <div className="single-video-progress-container">
-                            <div className="single-video-progress-bar"></div>
-                        </div>
-                    )}
-                    {lastOutcome === 'complete' && (
-                        <div style={{ position: 'absolute', top: '10px', right: '20px', fontWeight: 'bold', color: '#106619' }}>
-                            Download complete
-                        </div>
-                    )}
                 </div>
             </div>
         );
-    }
-
-    return (
+    } return (
         <div className="playlist-layout-wrapper">
             <div className="playlist-header-container">
                 <div className="header-left">
-                    <span className="header-action" onClick={handleSelectAll}>Select All</span>
-                    <span className="header-action" onClick={handleUnselectAll}>Unselect all</span>
+                    <span className={`header-action ${isDownloading || isPaused ? 'disabled' : ''}`} onClick={handleSelectAll}>Select All</span>
+                    <span className={`header-action ${isDownloading || isPaused ? 'disabled' : ''}`} onClick={handleUnselectAll}>Unselect all</span>
                 </div>
 
                 <div className="header-center">
@@ -227,7 +241,7 @@ const PlaylistViewer = ({
                 </div>
 
                 <div className="header-right">
-                    <div className="format-toggle" onClick={handleFormatToggle}>
+                    <div className={`format-toggle ${isDownloading || isPaused ? 'disabled' : ''}`} onClick={handleFormatToggle}>
                         <div className={`toggle-pill ${format === 'mp3' ? 'left' : 'right'}`}>
                             <span className={`pill-text ${format === 'mp3' ? 'active' : ''}`}>Audio</span>
                             <span className={`pill-text ${format === 'mp4' ? 'active' : ''}`}>Video</span>
@@ -239,6 +253,19 @@ const PlaylistViewer = ({
                             Video
                         </span>
                     </div>
+
+                    <button
+                        className={`folder-btn ${isDownloading || isPaused ? 'disabled' : ''}`}
+                        onClick={() => !(isDownloading || isPaused) && onSelectDownloadDir()}
+                        title={downloadDir ? `Current Folder: ${downloadDir}` : "Current Folder: n/a"}
+                    >
+                        <svg className="folder-icon closed-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                        <svg className="folder-icon open-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="m6 14 1.45-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.55 6a2 2 0 0 1-1.94 1.5H4a2 2 0 0 1-2-2V5c0-1.1.9-2 2-2h3.93a2 2 0 0 1 1.66.9l.82 1.2a2 2 0 0 0 1.66.9H18a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                    </button>
 
                     {isDownloading || isPaused ? (
                         <div className="split-btn-group">
@@ -293,15 +320,16 @@ const PlaylistViewer = ({
                         {videos.map((video, index) => (
                             <div
                                 key={video.id}
-                                className="playlist-item"
-                                onClick={() => onToggle(video.id)}
+                                className={`playlist-item ${isDownloading || isPaused ? 'disabled' : ''}`}
+                                onClick={() => !(isDownloading || isPaused) && onToggle(video.id)}
                             >
                                 <span className="video-index">#{index + 1}</span>
                                 <label className="checkbox-container" onClick={(e) => e.stopPropagation()}>
                                     <input
                                         type="checkbox"
                                         checked={selectedIds.has(video.id)}
-                                        onChange={() => onToggle(video.id)}
+                                        onChange={() => !(isDownloading || isPaused) && onToggle(video.id)}
+                                        disabled={isDownloading || isPaused}
                                     />
                                     <svg viewBox="0 0 64 64" height="1em" width="1em">
                                         <rect x="0" y="0" width="65" height="65" rx="8" className="checkbox-highlight-bg" />
