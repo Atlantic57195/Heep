@@ -22,12 +22,11 @@
       /*ne kadar karanlik olcagini belirtiyo*/
       , 0.25
       /*gesic smoothluk*/
-      , 1.50
+      , 1.25
       /*ne kadar saga ve sola gitcegini belirtio*/
     );
-  --transition-speed: 0.5s var(--ease-bounce);
-  --transition-speed2: 0.75s var(--ease-bounce);
-  --ease-bounce2: cubic-bezier(0.75, -0.50, 0.25, 1.25);
+  --transition-speed: 0.5s cubic-bezier(0.75, -0.50, 0.25, 1.50);
+  --transition-speed2: 0.75s cubic-bezier(0.75, -0.50, 0.25, 1.25);
 }
 
 body {
@@ -375,7 +374,7 @@ body.dark-mode .footer-curve {
   box-sizing: border-box;
   opacity: 0;
   transform: translateY(500px);
-  animation: fadeUp 1.50s var(--ease-bounce2) 0.25s forwards;
+  animation: fadeUp 1.50s var(--ease-bounce) 0.25s forwards;
   display: flex;
   flex-direction: column;
   overflow: hidden;
