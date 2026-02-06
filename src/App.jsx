@@ -2,11 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import ThemeToggle from './components/ThemeToggle';
 import SearchSection from './components/SearchSection';
 import PlaylistViewer from './components/PlaylistViewer';
+import heepLogoLight from './assets/heep-logo-light.png';
+import heepLogoDark from './assets/heep-logo-dark.png';
 import { invoke } from '@tauri-apps/api/core';
 import { open } from '@tauri-apps/plugin-dialog';
 import { listen } from '@tauri-apps/api/event';
-
-// Removed API_BASE and WS_BASE
 
 function App() {
   const [videos, setVideos] = useState([]);
@@ -33,12 +33,6 @@ function App() {
   const unlistenRef = useRef(null);
   const videosRef = useRef([]);
   const userStoppedRef = useRef(null); // 'pause' | 'cancel' when user intentionally stopped
-
-  useEffect(() => {
-    invoke('greet', { name: 'World' })
-      .then(console.log)
-      .catch(console.error);
-  }, []);
 
   useEffect(() => {
     videosRef.current = videos;
@@ -71,9 +65,6 @@ function App() {
         // Update specific video progress
         setActiveDownloads(prev => ({ ...prev, [id]: message }));
         setStatus(`Downloading ${Object.keys(activeDownloads).length} videos...`);
-
-        // Check if it looks like completion or error
-        // For now, since sidecar is simple, we rely on the command finishing in handleDownload
       });
       unlistenRef.current = unlisten;
     };
@@ -131,7 +122,6 @@ function App() {
     const videosToDownload = videos
       .filter(v => selectedIds.has(v.id))
       .filter(v => isResume === true ? !completedVideoIds.has(v.id) : true);
-
     if (isResume !== true) {
       setTotalToDownload(videos.filter(v => selectedIds.has(v.id)).length);
     }
@@ -238,7 +228,8 @@ function App() {
 
   const clearDownloadStatus = () => setLastOutcome(null);
 
-  // Update Page Title with Progress
+
+  /*// Update Page Title with Progress
   useEffect(() => {
     if (downloading && totalToDownload > 0) {
       const currentCount = completedVideoIds.size + 1;
@@ -248,6 +239,7 @@ function App() {
       document.title = 'frontend';
     }
   }, [downloading, completedVideoIds.size, totalToDownload]);
+  */
 
   const selectDownloadDir = async () => {
     try {
@@ -271,6 +263,16 @@ function App() {
         <div className="logo-card-bg"></div>
         <div className="logo-card-outline"></div>
         <div className="logo-card-blob"></div>
+        <img
+          src={heepLogoLight}
+          className={`card-logo-image ${theme === 'light' ? 'active' : 'inactive'}`}
+          alt="Heep Logo"
+        />
+        <img
+          src={heepLogoDark}
+          className={`card-logo-image ${theme === 'dark' ? 'active' : 'inactive'}`}
+          alt="Heep Logo"
+        />
       </div>
       <SearchSection
         theme={theme}
@@ -280,73 +282,73 @@ function App() {
         isLoading={loading}
       />
 
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginBottom: '1rem', alignItems: 'center' }}>
-        <button onClick={selectDownloadDir} style={{ padding: '8px 16px', borderRadius: '4px', cursor: 'pointer' }}>
-          {downloadDir ? `Location: ${downloadDir}` : 'Select Download Location'}
-        </button>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--text-color)' }}>
-          <span style={{ fontSize: '0.9rem' }}>Concurrency:</span>
+      {/*
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px', marginBottom: '1rem', color: theme === 'light' ? 'var(--text-light)' : 'var(--text-dark)' }}>
+        <span style={{ fontSize: '0.9rem' }}>Concurrency:</span>
 
-          <div style={{ position: 'relative' }}>
-            <div
-              onClick={() => setIsConcurrencyDropdownOpen(!isConcurrencyDropdownOpen)}
-              style={{
-                minWidth: '60px',
-                padding: '8px 12px',
-                borderRadius: '4px',
-                border: '1px solid var(--border-color, #ccc)',
-                cursor: 'pointer',
-                background: 'var(--card-bg, #fff)',
-                color: 'var(--text-color, #000)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                userSelect: 'none'
-              }}
-            >
-              <span>{concurrencyLimit}</span>
-              <span style={{ fontSize: '0.8em', marginLeft: '5px' }}>▼</span>
-            </div>
-
-            {isConcurrencyDropdownOpen && (
-              <div style={{
-                position: 'absolute',
-                top: '100%',
-                left: '0',
-                width: '98%',
-                maxHeight: '200px',
-                overflowY: 'auto',
-                background: 'var(--card-bg, #fff)',
-                border: '1px solid var(--border-color, #ccc)',
-                borderRadius: '4px',
-                boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-                zIndex: 1000
-              }}>
-                {Array.from({ length: 10 }, (_, i) => i + 1).map(num => (
-                  <div
-                    key={num}
-                    onClick={() => {
-                      setConcurrencyLimit(num);
-                      setIsConcurrencyDropdownOpen(false);
-                    }}
-                    style={{
-                      padding: '8px 12px',
-                      cursor: 'pointer',
-                      background: concurrencyLimit === num ? 'var(--hover-color, rgba(0,0,0,0.1))' : 'transparent',
-                      color: 'var(--text-color, #000)',
-                      textAlign: 'center'
-                    }}
-                    onMouseEnter={(e) => e.target.style.background = 'var(--hover-color, rgba(0,0,0,0.1))'}
-                    onMouseLeave={(e) => e.target.style.background = concurrencyLimit === num ? 'var(--hover-color, rgba(0,0,0,0.1))' : 'transparent'}
-                  >
-                    {num}
-                  </div>
-                ))}
-              </div>
-            )}
+        <div style={{ position: 'relative' }}>
+          <div
+            onClick={() => setIsConcurrencyDropdownOpen(!isConcurrencyDropdownOpen)}
+            style={{
+              minWidth: '60px',
+              padding: '8px 12px',
+              borderRadius: '4px',
+              border: `1px solid ${theme === 'light' ? 'rgba(48, 49, 52, 0.3)' : 'rgba(217, 217, 217, 0.3)'}`,
+              cursor: 'pointer',
+              background: theme === 'light' ? 'var(--bg-light)' : 'var(--bg-dark)',
+              color: theme === 'light' ? 'var(--text-light)' : 'var(--text-dark)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              userSelect: 'none',
+              transition: 'border-color 0.3s, background-color 0.3s, color 0.3s'
+            }}
+          >
+            <span>{concurrencyLimit}</span>
+            <span style={{ fontSize: '0.8em', marginLeft: '5px' }}>▼</span>
           </div>
+
+          {isConcurrencyDropdownOpen && (
+            <div style={{
+              position: 'absolute',
+              top: '100%',
+              left: '0',
+              width: '100%',
+              maxHeight: '200px',
+              overflowY: 'auto',
+              background: theme === 'light' ? 'var(--bg-light)' : 'var(--bg-dark)',
+              border: `1px solid ${theme === 'light' ? 'rgba(48, 49, 52, 0.3)' : 'rgba(217, 217, 217, 0.3)'}`,
+              borderRadius: '4px',
+              boxShadow: `0 4px 6px ${theme === 'light' ? 'rgba(0, 0, 0, 0.1)' : 'rgba(0, 0, 0, 0.3)'}`,
+              zIndex: 1000,
+              marginTop: '5px'
+            }}>
+              {Array.from({ length: 10 }, (_, i) => i + 1).map(num => (
+                <div
+                  key={num}
+                  onClick={() => {
+                    setConcurrencyLimit(num);
+                    setIsConcurrencyDropdownOpen(false);
+                  }}
+                  style={{
+                    padding: '8px 12px',
+                    cursor: 'pointer',
+                    color: theme === 'light' ? 'var(--text-light)' : 'var(--text-dark)',
+                    textAlign: 'center',
+                    transition: 'background-color 0.2s',
+                    background: concurrencyLimit === num ? (theme === 'light' ? 'rgba(48, 49, 52, 0.1)' : 'rgba(217, 217, 217, 0.1)') : 'transparent'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = theme === 'light' ? 'rgba(48, 49, 52, 0.1)' : 'rgba(217, 217, 217, 0.1)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = concurrencyLimit === num ? (theme === 'light' ? 'rgba(48, 49, 52, 0.1)' : 'rgba(217, 217, 217, 0.1)') : 'transparent'}
+                >
+                  {num}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
+      */}
 
       <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
 
@@ -372,6 +374,8 @@ function App() {
           onClearStatus={clearDownloadStatus}
           lastOutcome={lastOutcome}
           status={status}
+          onSelectDownloadDir={selectDownloadDir}
+          downloadDir={downloadDir}
         />
       </div>
     </>

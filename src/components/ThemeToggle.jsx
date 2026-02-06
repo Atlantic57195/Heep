@@ -1,6 +1,6 @@
 import React from 'react';
-import iconSun from '../assets/icon-sun.png';
-import iconMoon from '../assets/icon-moon.png';
+import iconSun from '../assets/theme-icon-sun.png';
+import iconMoon from '../assets/theme-icon-moon.png';
 
 const ThemeToggle = ({ theme, toggleTheme }) => {
     return (
