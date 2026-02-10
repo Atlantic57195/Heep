@@ -3,7 +3,7 @@ import UrlInput from './UrlInput';
 import logoLight from '../assets/yt-logo-light.png';
 import logoDark from '../assets/yt-logo-dark.png';
 
-const SearchSection = ({ theme, hasVideos, isSingleVideo, onAnalyze, isLoading }) => {
+const SearchSection = ({ theme, hasVideos, isSingleVideo, onAnalyze, isLoading, resetTrigger }) => {
     return (
         <div className={`center-container ${hasVideos ? (isSingleVideo ? 'moved-up-single' : 'moved-up') : ''}`}>
             <div className="logo-container">
@@ -18,7 +18,7 @@ const SearchSection = ({ theme, hasVideos, isSingleVideo, onAnalyze, isLoading }
                     alt="YouTube Logo"
                 />
             </div>
-            <UrlInput onAnalyze={onAnalyze} isLoading={isLoading} />
+            <UrlInput onAnalyze={onAnalyze} isLoading={isLoading} resetTrigger={resetTrigger} />
         </div>
     );
 };
