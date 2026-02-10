@@ -1,7 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-const UrlInput = ({ onAnalyze, isLoading }) => {
+const UrlInput = ({ onAnalyze, isLoading, resetTrigger }) => {
     const [url, setUrl] = useState('');
+
+    useEffect(() => {
+        if (resetTrigger > 0) {
+            setUrl('');
+        }
+    }, [resetTrigger]);
 
     const handleKeyDown = (e) => {
         if (e.key === 'Enter' && url.trim()) {
