@@ -9,6 +9,7 @@
     "core:default",
     "opener:default",
     "core:path:default",
+    "core:window:allow-set-title",
     "dialog:default",
     {
       "identifier": "shell:allow-execute",
