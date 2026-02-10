@@ -7,6 +7,7 @@ import heepLogoDark from './assets/heep-logo-dark.png';
 import { invoke } from '@tauri-apps/api/core';
 import { open } from '@tauri-apps/plugin-dialog';
 import { listen } from '@tauri-apps/api/event';
+import { getCurrentWindow } from '@tauri-apps/api/window';
 
 function App() {
   const [videos, setVideos] = useState([]);
@@ -229,17 +230,39 @@ function App() {
   const clearDownloadStatus = () => setLastOutcome(null);
 
 
-  /*// Update Page Title with Progress
+  // Update Page Title with Progress
   useEffect(() => {
-    if (downloading && totalToDownload > 0) {
-      const currentCount = completedVideoIds.size + 1;
-      const displayCount = currentCount > totalToDownload ? totalToDownload : currentCount;
-      document.title = `frontend - (${displayCount}/${totalToDownload})`;
-    } else {
-      document.title = 'frontend';
-    }
-  }, [downloading, completedVideoIds.size, totalToDownload]);
-  */
+    const updateTitle = async () => {
+      const appWindow = getCurrentWindow();
+      if (downloading && totalToDownload > 0) {
+        const currentCount = completedVideoIds.size + 1;
+        const displayCount = currentCount > totalToDownload ? totalToDownload : currentCount;
+
+        // Calculate total progress
+        let totalPercentage = 0;
+
+        // Add 100% for each completed video
+        totalPercentage += completedVideoIds.size * 100;
+
+        // Add partial progress for active downloads
+        Object.values(activeDownloads).forEach(msg => {
+          const match = msg.match(/(\d+\.?\d*)%/);
+          if (match) {
+            totalPercentage += parseFloat(match[1]);
+          }
+        });
+
+        // Average over total videos
+        const playlistProgress = (totalPercentage / totalToDownload).toFixed(1);
+
+        await appWindow.setTitle(`Heep. - (${displayCount}/${totalToDownload}) - ${playlistProgress}% Downloading`);
+      } else {
+        await appWindow.setTitle('Heep.');
+      }
+    };
+
+    updateTitle();
+  }, [downloading, completedVideoIds.size, totalToDownload, activeDownloads]);
 
   const selectDownloadDir = async () => {
     try {
