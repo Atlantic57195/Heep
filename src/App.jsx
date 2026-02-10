@@ -257,9 +257,20 @@ function App() {
     }
   };
 
+  const [resetKey, setResetKey] = useState(0);
+
+  const handleLogoClick = () => {
+    setVideos([]);
+    setSelectedIds(new Set());
+    setCompletedVideoIds(new Set());
+    setStatus('');
+    setLastOutcome(null);
+    setResetKey(prev => prev + 1);
+  };
+
   return (
     <>
-      <div className="logo-card">
+      <div className="logo-card" onClick={handleLogoClick}>
         <div className="logo-card-bg"></div>
         <div className="logo-card-outline"></div>
         <div className="logo-card-blob"></div>
@@ -275,6 +286,7 @@ function App() {
         />
       </div>
       <SearchSection
+        resetTrigger={resetKey}
         theme={theme}
         hasVideos={videos.length > 0}
         isSingleVideo={videos.length === 1}
