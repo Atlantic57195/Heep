@@ -435,7 +435,7 @@ function App() {
             padding: '8px 12px',
             borderRadius: '8px',
             border: 'none',
-            background: theme === 'light' ? '#e0e0e0' : '#303134',
+            background: theme === 'light' ? '#e0e0e0' : '#11d6f5ff',
             color: theme === 'light' ? '#000' : '#fff',
             cursor: 'pointer',
             fontSize: '0.9rem',
