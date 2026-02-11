@@ -10,6 +10,7 @@
     "opener:default",
     "core:path:default",
     "core:window:allow-set-title",
+    "updater:default",
     "dialog:default",
     {
       "identifier": "shell:allow-execute",

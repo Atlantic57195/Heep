@@ -5,9 +5,11 @@ import PlaylistViewer from './components/PlaylistViewer';
 import heepLogoLight from './assets/heep-logo-light.png';
 import heepLogoDark from './assets/heep-logo-dark.png';
 import { invoke } from '@tauri-apps/api/core';
-import { open } from '@tauri-apps/plugin-dialog';
+import { open, ask, message } from '@tauri-apps/plugin-dialog';
 import { listen } from '@tauri-apps/api/event';
 import { getCurrentWindow } from '@tauri-apps/api/window';
+import { check } from '@tauri-apps/plugin-updater';
+import { relaunch } from '@tauri-apps/plugin-process';
 
 function App() {
   const [videos, setVideos] = useState([]);
@@ -17,6 +19,7 @@ function App() {
   const [downloading, setDownloading] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
+  const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
 
   const [downloadId, setDownloadId] = useState(null);
   const [activeDownloads, setActiveDownloads] = useState({}); // id -> progress string
@@ -301,6 +304,32 @@ function App() {
     setResetKey(prev => prev + 1);
   };
 
+  const checkForAppUpdates = async () => {
+    setIsCheckingUpdate(true);
+    try {
+      const update = await check();
+      if (update?.available) {
+        const yes = await ask(`Update to ${update.version} is available!\n\nRelease notes: ${update.body}`, {
+          title: 'Update Available',
+          kind: 'info',
+          okLabel: 'Update',
+          cancelLabel: 'Cancel'
+        });
+        if (yes) {
+          await update.downloadAndInstall();
+          await relaunch();
+        }
+      } else {
+        await message('You are on the latest version.', { title: 'No Updates', kind: 'info' });
+      }
+    } catch (error) {
+      console.error(error);
+      await message(`Error checking for updates: ${error}`, { title: 'Error', kind: 'error' });
+    } finally {
+      setIsCheckingUpdate(false);
+    }
+  };
+
   return (
     <>
       <div className="logo-wrapper">
@@ -398,6 +427,26 @@ function App() {
       </div>
       */}
 
+      <div style={{ position: 'fixed', top: '20px', right: '80px', zIndex: 1000 }}>
+        <button
+          onClick={checkForAppUpdates}
+          disabled={isCheckingUpdate}
+          style={{
+            padding: '8px 12px',
+            borderRadius: '8px',
+            border: 'none',
+            background: theme === 'light' ? '#e0e0e0' : '#303134',
+            color: theme === 'light' ? '#000' : '#fff',
+            cursor: 'pointer',
+            fontSize: '0.9rem',
+            opacity: isCheckingUpdate ? 0.7 : 1,
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+            transition: 'background 0.3s, color 0.3s'
+          }}
+        >
+          {isCheckingUpdate ? 'Checking...' : 'Check for Updates'}
+        </button>
+      </div>
       <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
 
       <div className={`footer-curve ${videos.length > 0 ? 'active' : ''} ${videos.length === 1 ? 'single-active' : ''}`}>
