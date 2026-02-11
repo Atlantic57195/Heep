@@ -1,6 +1,6 @@
 [package]
 name = "heep"
-version = "1.0.10"
+version = "1.0.11"
 description = "A Tauri App"
 authors = ["Berk-Ramazan"]
 edition = "2021"
