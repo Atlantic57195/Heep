@@ -43,7 +43,7 @@
       "endpoints": [
         "https://github.com/Atlantic57195/Heep/releases/latest/download/latest.json"
       ],
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEU2NDBFNDhFQzNBNEU3MjQKUldRazU2VERqdVJBNWoyZWxuTVNRZUpUY3FKZ0VMcGhSRkxWMjc2OGFwUnl4NHFzNGNJaXF3ajAK"
+      "pubkey": "untrusted comment: minisign public key: E640E48EC3A4E724\nRWQK56TDjuRA5j2elnMSQeJTcqJgELphRFLV2768apRyx4qs4cIiqwj0"
     }
   }
 }
