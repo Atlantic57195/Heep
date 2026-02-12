@@ -380,6 +380,38 @@ body.dark-mode .theme-switch:hover .toggle-icon {
 /*------------------------------------------------------------------------------*/
 
 
+/*-------------------------------UPDATE WARNING---------------------------------*/
+.update-warning-icon {
+  position: absolute;
+  top: 95px;
+  right: 20px;
+  width: 50px;
+  height: auto;
+  cursor: pointer;
+  z-index: 20;
+  transition: transform 0.2s ease;
+  animation: pulse-warning 2s infinite;
+}
+
+.update-warning-icon:hover {
+  transform: scale(1.1);
+}
+
+@keyframes pulse-warning {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.2);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+
 /*------------------------------------------------------------------------------------*/
 /*-------------------------------VIDEO INFO SECTION-----------------------------------*/
 .footer-curve {

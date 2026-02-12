@@ -5,6 +5,7 @@ import SearchSection from './components/SearchSection';
 import PlaylistViewer from './components/PlaylistViewer';
 import heepLogoLight from './assets/heep-logo-light.png';
 import heepLogoDark from './assets/heep-logo-dark.png';
+import updateWarning from './assets/update-warning.png';
 import { invoke } from '@tauri-apps/api/core';
 import { open, ask, message } from '@tauri-apps/plugin-dialog';
 import { listen } from '@tauri-apps/api/event';
@@ -21,6 +22,7 @@ function App() {
   const [isPaused, setIsPaused] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
   const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
+  const [isUpdateAvailable, setIsUpdateAvailable] = useState(false);
 
   const [downloadId, setDownloadId] = useState(null);
   const [activeDownloads, setActiveDownloads] = useState({}); // id -> progress string
@@ -310,11 +312,26 @@ function App() {
     setResetKey(prev => prev + 1);
   };
 
+  useEffect(() => {
+    const initialCheck = async () => {
+      try {
+        const update = await check();
+        if (update?.available) {
+          setIsUpdateAvailable(true);
+        }
+      } catch (e) {
+        console.error("Failed to check for updates:", e);
+      }
+    };
+    initialCheck();
+  }, []);
+
   const checkForAppUpdates = async () => {
     setIsCheckingUpdate(true);
     try {
       const update = await check();
       if (update?.available) {
+        setIsUpdateAvailable(true);
         const yes = await ask(`Update to ${update.version} is available!\n\nRelease notes: ${update.body}`, {
           title: 'Update Available',
           kind: 'info',
@@ -326,6 +343,7 @@ function App() {
           await relaunch();
         }
       } else {
+        setIsUpdateAvailable(false);
         await message('You are on the latest version.', { title: 'No Updates', kind: 'info' });
       }
     } catch (error) {
@@ -441,6 +459,16 @@ function App() {
       */}
 
       <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
+
+      {isUpdateAvailable && (
+        <img
+          src={updateWarning}
+          className="update-warning-icon"
+          onClick={checkForAppUpdates}
+          alt="Update Available"
+          title="Update Available - Click to update"
+        />
+      )}
 
       <div className={`footer-curve ${videos.length > 0 ? 'active' : ''} ${videos.length === 1 ? 'single-active' : ''}`}>
         <PlaylistViewer
