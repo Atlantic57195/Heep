@@ -102,6 +102,14 @@ const PlaylistViewer = ({
     };
 
     if (!videos || videos.length === 0) return null;
+
+    const handleVideoToggle = (id) => {
+        if (isDownloading || isPaused) return;
+        onClearStatus?.();
+        if (onClearCompleted) onClearCompleted();
+        onToggle(id);
+    };
+
     if (videos.length === 1) {
         const video = videos[0];
         return (
@@ -172,6 +180,7 @@ const PlaylistViewer = ({
                             <button
                                 className="download-pill-btn"
                                 onClick={() => { onClearStatus?.(); onDownload(); }}
+                                disabled={selectedCount === 0}
                             >
                                 Download
                             </button>
@@ -321,14 +330,14 @@ const PlaylistViewer = ({
                             <div
                                 key={video.id}
                                 className={`playlist-item ${isDownloading || isPaused ? 'disabled' : ''}`}
-                                onClick={() => !(isDownloading || isPaused) && onToggle(video.id)}
+                                onClick={() => handleVideoToggle(video.id)}
                             >
                                 <span className="video-index">#{index + 1}</span>
                                 <label className="checkbox-container" onClick={(e) => e.stopPropagation()}>
                                     <input
                                         type="checkbox"
                                         checked={selectedIds.has(video.id)}
-                                        onChange={() => !(isDownloading || isPaused) && onToggle(video.id)}
+                                        onChange={() => handleVideoToggle(video.id)}
                                         disabled={isDownloading || isPaused}
                                     />
                                     <svg viewBox="0 0 64 64" height="1em" width="1em">

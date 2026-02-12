@@ -31,8 +31,8 @@ function App() {
   const [status, setStatus] = useState('');
   const [lastOutcome, setLastOutcome] = useState(null); // 'complete' | 'paused' | 'canceled'
   const [downloadDir, setDownloadDir] = useState(localStorage.getItem('downloadDir') || null);
-  const [concurrencyLimit, setConcurrencyLimit] = useState(parseInt(localStorage.getItem('concurrencyLimit')) || 1);
-  const [isConcurrencyDropdownOpen, setIsConcurrencyDropdownOpen] = useState(false);
+  const [concurrencyLimit] = useState(3);
+  // removed isConcurrencyDropdownOpen
 
   // Lifted theme state
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
@@ -62,9 +62,7 @@ function App() {
     localStorage.setItem('format', format);
   }, [format]);
 
-  useEffect(() => {
-    localStorage.setItem('concurrencyLimit', concurrencyLimit);
-  }, [concurrencyLimit]);
+
 
   const toggleTheme = () => {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
@@ -390,73 +388,9 @@ function App() {
         isLoading={loading}
       />
 
-      {/*
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px', marginBottom: '1rem', color: theme === 'light' ? 'var(--text-light)' : 'var(--text-dark)' }}>
-        <span style={{ fontSize: '0.9rem' }}>Concurrency:</span>
 
-        <div style={{ position: 'relative' }}>
-          <div
-            onClick={() => setIsConcurrencyDropdownOpen(!isConcurrencyDropdownOpen)}
-            style={{
-              minWidth: '60px',
-              padding: '8px 12px',
-              borderRadius: '4px',
-              border: `1px solid ${theme === 'light' ? 'rgba(48, 49, 52, 0.3)' : 'rgba(217, 217, 217, 0.3)'}`,
-              cursor: 'pointer',
-              background: theme === 'light' ? 'var(--bg-light)' : 'var(--bg-dark)',
-              color: theme === 'light' ? 'var(--text-light)' : 'var(--text-dark)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              userSelect: 'none',
-              transition: 'border-color 0.3s, background-color 0.3s, color 0.3s'
-            }}
-          >
-            <span>{concurrencyLimit}</span>
-            <span style={{ fontSize: '0.8em', marginLeft: '5px' }}>▼</span>
-          </div>
 
-          {isConcurrencyDropdownOpen && (
-            <div style={{
-              position: 'absolute',
-              top: '100%',
-              left: '0',
-              width: '100%',
-              maxHeight: '200px',
-              overflowY: 'auto',
-              background: theme === 'light' ? 'var(--bg-light)' : 'var(--bg-dark)',
-              border: `1px solid ${theme === 'light' ? 'rgba(48, 49, 52, 0.3)' : 'rgba(217, 217, 217, 0.3)'}`,
-              borderRadius: '4px',
-              boxShadow: `0 4px 6px ${theme === 'light' ? 'rgba(0, 0, 0, 0.1)' : 'rgba(0, 0, 0, 0.3)'}`,
-              zIndex: 1000,
-              marginTop: '5px'
-            }}>
-              {Array.from({ length: 10 }, (_, i) => i + 1).map(num => (
-                <div
-                  key={num}
-                  onClick={() => {
-                    setConcurrencyLimit(num);
-                    setIsConcurrencyDropdownOpen(false);
-                  }}
-                  style={{
-                    padding: '8px 12px',
-                    cursor: 'pointer',
-                    color: theme === 'light' ? 'var(--text-light)' : 'var(--text-dark)',
-                    textAlign: 'center',
-                    transition: 'background-color 0.2s',
-                    background: concurrencyLimit === num ? (theme === 'light' ? 'rgba(48, 49, 52, 0.1)' : 'rgba(217, 217, 217, 0.1)') : 'transparent'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = theme === 'light' ? 'rgba(48, 49, 52, 0.1)' : 'rgba(217, 217, 217, 0.1)'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = concurrencyLimit === num ? (theme === 'light' ? 'rgba(48, 49, 52, 0.1)' : 'rgba(217, 217, 217, 0.1)') : 'transparent'}
-                >
-                  {num}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-      */}
+
 
       <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
 
