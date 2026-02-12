@@ -113,7 +113,7 @@ const PlaylistViewer = ({
 
                     <div className="header-center">
                         {lastOutcome === 'complete' ? (
-                            <div><b>Download Complete</b></div>
+                            <div><b>Download Completed</b></div>
                         ) : lastOutcome === 'paused' || isPaused ? (
                             <div><b>Download Paused</b></div>
                         ) : lastOutcome === 'canceled' ? (
@@ -225,7 +225,7 @@ const PlaylistViewer = ({
 
                 <div className="header-center">
                     {lastOutcome === 'complete' ? (
-                        <div><b>Download Complete</b></div>
+                        <div><b>Download Completed</b></div>
                     ) : lastOutcome === 'paused' || isPaused ? (
                         <div><b>Download Paused</b></div>
                     ) : lastOutcome === 'canceled' ? (

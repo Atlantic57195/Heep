@@ -80,15 +80,17 @@ body.dark-mode {
   opacity: 0.75;
 }
 
+
 .logo-wrapper {
   position: fixed;
-  top: 30px;
+  top: 60px;
   left: 30px;
   z-index: 4;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
+
 
 .logo-card {
   position: relative;
@@ -347,7 +349,7 @@ body.dark-mode .search-icon:hover {
 
 .theme-switch {
   position: absolute;
-  top: 20px;
+  top: 50px;
   right: 20px;
   cursor: pointer;
   width: 50px;
@@ -799,6 +801,176 @@ body.dark-mode .icon-btn.pause-btn:hover {
 body.dark-mode .icon-btn.resume-btn:hover {
   background: #106619;
 }
+
+/*-------------------------------CUSTOM TITLE BAR-----------------------------------*/
+.titlebar {
+  height: 30px;
+  background: var(--footer-curve-light);
+  user-select: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10000;
+  transition: background-color var(--transition-speed);
+  padding-left: 10px;
+  /* Space for drag mainly */
+}
+
+.titlebar.dark {
+  background: var(--footer-curve-dark);
+}
+
+.titlebar-left {
+  flex-grow: 1;
+  height: 100%;
+}
+
+/* Make the left part draggable */
+.titlebar-left,
+.titlebar {
+  /* Creating a draggable area */
+  -webkit-app-region: drag;
+  display: flex;
+  align-items: center;
+}
+
+.titlebar-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.titlebar-text {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #000000;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 400px;
+  transition: color var(--transition-speed);
+}
+
+.titlebar.dark .titlebar-text {
+  color: #ffffff;
+}
+
+.titlebar-right {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  -webkit-app-region: no-drag;
+  /* Buttons must be clickable */
+}
+
+.titlebar-right button {
+  -webkit-app-region: no-drag;
+}
+
+/* Update Check Button */
+.update-check-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-light);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 15px 15px;
+  transition: background-color var(--transition-speed),
+    color var(--transition-speed);
+  height: 24px;
+}
+
+.update-check-btn:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.titlebar.dark .update-check-btn {
+  color: var(--text-dark);
+}
+
+.titlebar.dark .update-check-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.update-check-btn.checking {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.update-check-btn svg {
+  width: 17px;
+  height: 17px;
+  rotate: 45deg;
+}
+
+.spinner {
+  width: 17px;
+  height: 17px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.spin-animation {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Window Controls */
+.window-controls {
+  display: flex;
+  height: 100%;
+}
+
+.titlebar-button {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 46px;
+  height: 100%;
+  border: none;
+  background: transparent;
+  color: var(--text-light);
+  transition: background-color var(--transition-speed),
+    color var(--transition-speed);
+  cursor: pointer;
+}
+
+.titlebar.dark .titlebar-button {
+  color: var(--text-dark);
+}
+
+.titlebar-button:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.titlebar.dark .titlebar-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.titlebar-button.close:hover {
+  background-color: #e81123;
+  color: white;
+}
+
+.titlebar.dark .titlebar-button.close:hover {
+  background-color: #e81123;
+  color: white;
+}
+
 
 .icon-btn.cancel-btn {
   background: #77DA7B;

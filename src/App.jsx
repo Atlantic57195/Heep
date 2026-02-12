@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import TitleBar from './components/TitleBar';
 import ThemeToggle from './components/ThemeToggle';
 import SearchSection from './components/SearchSection';
 import PlaylistViewer from './components/PlaylistViewer';
@@ -33,6 +34,7 @@ function App() {
 
   // Lifted theme state
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
+  const [appTitle, setAppTitle] = useState('Heep.');
 
   const unlistenRef = useRef(null);
   const videosRef = useRef([]);
@@ -247,6 +249,8 @@ function App() {
   useEffect(() => {
     const updateTitle = async () => {
       const appWindow = getCurrentWindow();
+      let newTitle = 'Heep.';
+
       if (downloading && totalToDownload > 0) {
         const currentCount = completedVideoIds.size + 1;
         const displayCount = currentCount > totalToDownload ? totalToDownload : currentCount;
@@ -268,10 +272,12 @@ function App() {
         // Average over total videos
         const playlistProgress = (totalPercentage / totalToDownload).toFixed(1);
 
-        await appWindow.setTitle(`Heep. - (${displayCount}/${totalToDownload}) - ${playlistProgress}% Downloading`);
+        newTitle = `Heep. - ${playlistProgress}% (${displayCount}/${totalToDownload}) Downloading`;
+        await appWindow.setTitle(newTitle);
       } else {
         await appWindow.setTitle('Heep.');
       }
+      setAppTitle(newTitle);
     };
 
     updateTitle();
@@ -332,6 +338,13 @@ function App() {
 
   return (
     <>
+      <TitleBar
+        theme={theme}
+        onCheckUpdate={checkForAppUpdates}
+        isChecking={isCheckingUpdate}
+        title={appTitle}
+      />
+
       <div className="logo-wrapper">
         <div className="logo-card" onClick={handleLogoClick}>
           <div className="logo-card-bg"></div>
@@ -427,26 +440,6 @@ function App() {
       </div>
       */}
 
-      <div style={{ position: 'fixed', top: '20px', right: '80px', zIndex: 1000 }}>
-        <button
-          onClick={checkForAppUpdates}
-          disabled={isCheckingUpdate}
-          style={{
-            padding: '8px 12px',
-            borderRadius: '8px',
-            border: 'none',
-            background: theme === 'light' ? '#e0e0e0' : '#11d6f5ff',
-            color: theme === 'light' ? '#000' : '#fff',
-            cursor: 'pointer',
-            fontSize: '0.9rem',
-            opacity: isCheckingUpdate ? 0.7 : 1,
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            transition: 'background 0.3s, color 0.3s'
-          }}
-        >
-          {isCheckingUpdate ? 'Checking...' : 'Check for Updates'}
-        </button>
-      </div>
       <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
 
       <div className={`footer-curve ${videos.length > 0 ? 'active' : ''} ${videos.length === 1 ? 'single-active' : ''}`}>
